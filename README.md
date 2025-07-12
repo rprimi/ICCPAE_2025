@@ -1,4 +1,4 @@
-### Slides and materials from the keynote and workshop I delivered at the International Conference on Cognitive and Psychological Assessment and Enhancement (ICCPAE 2025)[https://psychometrics.bnu.edu.cn/iccpae2025_en/], held in Beijing, China.
+### Slides and materials from the keynote and workshop I delivered at the International Conference on Cognitive and Psychological Assessment and Enhancement (ICCPAE 2025)[https://psychometrics.bnu.edu.cn/iccpae2025_en/], held in Beijing Normal University, China.
 
 **Key Note**  
 _Personality as Search: Automated Big Five Assessment with BERT_  
