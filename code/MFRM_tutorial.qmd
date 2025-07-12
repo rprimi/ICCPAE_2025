@@ -1,0 +1,105 @@
+---
+title: "MFRM Tutorial"
+format: html
+editor: source
+---
+
+
+```{r setup, include=FALSE}
+
+  knitr::opts_chunk$set(message = FALSE, warning = FALSE)
+
+```
+
+## Data 
+
+```{r}
+library(readxl)
+df <- read_excel("~/Dropbox (Personal)/Criativ_BenedekSilvia/df.xlsx")
+head(df)
+```
+
+## Package TAM
+Alexander Robitzsch [https://github.com/alexanderrobitzsch] created two packages `TAM`and `immer` that can run facet model.
+
+`TAM`has a function `tam.mml.mfr` that mimics _FACETS_ using joint maximum likelihood estimation method. (see: @RobitzschItemresponsemodels2018; @RobitzschimmerItemResponse2017; @RobitzschTAMTestanalysis2018). We will run the analysis using `TAM`  
+
+First you need to install `TAM` in case you haven't done yet.
+
+```{r eval = FALSE}
+install.packages("TAM")
+```
+
+## Restructure data
+`TAM` requires data in a format  subjects+raters in rows and tasks in columns.
+
+The code bellow reestrucure the dataframe accordingly 
+We also transform the variable `score` so it goes from 1 to 4 to 0 to 3 becasue it is more consistent with the way `TAM` parametrization. 
+
+```{r}
+ library("tidyverse")
+  
+ df2 <- df %>% 
+    pivot_longer(
+        cols = met1_rater1:met2_rater3, 
+        names_to =  "item_rater" , 
+        values_to = "score"
+            ) %>%
+  separate(item_rater, c("item", "rater")) %>%
+  mutate(score = score - 1) %>%
+  pivot_wider(names_from = item , values_from =  score)
+
+   
+```
+
+
+## Running Many Facets Rash Model with `TAM`  
+
+ 
+```{r}
+  
+  library(TAM)
+  
+  fit <- tam.mml.mfr(
+    resp=df2[ ,3:4], 
+    facets = df2[, "rater"],
+    pid = df2$subject , 
+    formulaA = ~ item + step + rater,
+    verbose = FALSE
+          )
+ 
+   names(fit)
+ 
+    summary(fit)
+ 
+```
+## Extracting model parameters
+We can explore task's, rating scale and rater's parameters by examining the dataframe called `xsi.facets` within fit list. 
+There is also an interesting utility function called `IRT.WrightMap`. We can pass `fit` object to this function and get a construyct map.  
+
+
+```{r}
+  
+  
+  fit$xsi.facets 
+  IRT.WrightMap(fit)  
+ 
+ 
+```
+## We can do a better job using ggplot
+
+```{r}
+
+ source("http://www.labape.com.br/rprimi/R/mfrm_construct_map.R")
+ mfrm_construct_map(
+  theta_subj = fit$person$EAP, 
+   alfa_rater = fit$xsi.facets$xsi[6:8],
+        beta_task = fit$xsi.facets$xsi[1:2],
+         tresholds=fit$xsi.facets$xsi[3:5]
+        
+        )
+
+
+```
+
+

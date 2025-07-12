@@ -1,0 +1,100 @@
+---
+title: "BIB tutorial"
+format: html
+editor: source
+---
+
+## Libraries
+
+```{r}
+   
+  library(tidyverse)
+  library(sjmisc)
+  
+
+  library(crossdes)
+  library(ibd)
+  library(agricolae)
+  library(AlgDesign)
+  library(sampling)
+
+
+```
+
+## Combinatorial problem
+
+-   Combination of rows, columns and elements distributed inside cells
+
+Columns = number of raters per idea / number of blocks of items Elements = total number of raters / Total number of unique bloks of items Rows = number of combination of v raters / number of different booklets or test forms
+
+1.  Columns
+
+<!-- -->
+
+(k) /unities per block / subtests per booklet
+
+<!-- -->
+
+2.  Elements distributed (v or trt) varieties / subtests / blocks (in SAEB)
+
+3.  Rows
+
+<!-- -->
+
+(b) blocks / booklets
+
+## How many combinations of 2 raters exist
+
+-   note we don't need all combinations to have balanced pairwise of two raters in total number of rows
+
+```{r}
+
+allcombs(trt = 8, k=2)
+
+```
+
+## Find a combination that is balanced
+
+-   Look to the Fisher & Yates (1963, Statistical Tables) Tables
+
+-  Found v=8, b =28, k 2
+
+-  Find the bib
+
+```{r}
+
+ bib8 <- find.BIB(trt = 8, b = 28, k = 2, iter = 200)
+
+```
+
+-   Test if it is BIB
+
+```{r}
+
+isGYD(bib8, tables=TRUE, type=TRUE)
+```
+
+
+```{r}
+library(ggplot2)
+library(reshape2)
+
+# Assuming your matrix is called 'mat'
+# First, convert the matrix to a data frame suitable for ggplot
+df <- expand.grid(Row = 1:nrow(bib8), Col = 1:ncol(bib8))
+df$Value <- as.vector(bib8)
+
+# Create the tile plot
+ggplot(df, aes(x = Col, y = Row, fill = factor(Value))) +
+  geom_tile(color = "white", size = 0.5) +
+  scale_fill_viridis_d(name = "Value") +  # or use scale_fill_brewer()
+  scale_x_continuous(breaks = 1:2, labels = c("Col 1", "Col 2")) +
+  scale_y_continuous(breaks = 1:28, trans = "reverse") +  # reverse to match matrix layout
+  labs(title = "Matrix Heatmap", x = "Column", y = "Row") +
+  theme_minimal() +
+  theme(
+    panel.grid = element_blank(),
+    axis.text.y = element_text(size = 8)
+  )
+```
+
